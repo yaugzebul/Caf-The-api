@@ -8,7 +8,8 @@ const db = require('./db');
 const {listen} = require("express/lib/application");
 
 // Importation des routes
-// ... A venir
+// Route des Articles
+const articleRoutes = require("./article/routes/articleRouter");
 
 // Création de l'appli express
 const app = express();
@@ -41,7 +42,7 @@ app.get("/health", (req, res) => {
 })
 
 // Routes de l'api
-// ... à venir
+app.use("/api/articles", articleRoutes);
 
 // Gestion des erreurs
 // Route 404
