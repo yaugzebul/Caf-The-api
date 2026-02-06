@@ -9,8 +9,9 @@ const {listen} = require("express/lib/application");
 
 // Importation des routes
 // Route des Articles
-const articleRoutes = require("./article/routes/articleRouter");
-const clientRoutes = require("./client/routes/clientRouter");
+const articleRoutes = require("./article/routes/ArticleRouter");
+const clientRoutes = require("./client/routes/ClientRouter");
+const orderRoutes = require("./order/routes/OrderRouter");
 
 // Création de l'appli express
 const app = express();
@@ -21,6 +22,9 @@ app.use(express.json());
 
 // Logger de requêtes HTTP dans la console
 app.use(morgan('dev'));
+
+// Sert les fichiers statiques (images et produits)
+app.use(express.static( "public"));
 
 // Permet les requêtes cross origin (qui viennent du front)
 // CORS = Cross Origin Ressource Sharing
@@ -45,6 +49,7 @@ app.get("/health", (req, res) => {
 // Routes de l'api
 app.use("/api/articles", articleRoutes);
 app.use("/api/clients", clientRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Gestion des erreurs
 // Route 404
