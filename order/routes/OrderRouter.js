@@ -1,19 +1,30 @@
 // Router Commandes
 // Chemin : /api/orders
 const express = require('express');
-const { handleCreateOrder } = require('../controllers/OrderController');
+const { handleCreateOrder, getOrderById, getClientOrders } = require('../controllers/OrderController');
 const { verifyToken } = require('../../mddleware/authMiddleware');
 
 const router = express.Router();
 
 /**
- * Route pour créer une nouvelle commande.
- * @route POST /api/orders
- * @description Crée une commande avec les articles fournis. L'utilisateur doit être authentifié.
+ * Route pour récupérer l'historique des commandes de l'utilisateur authentifié.
+ * @route GET /
  * @access private
- * @body {Array<object>} items - Liste des articles de la commande.
- * @body {number} total - Montant total de la commande.
+ */
+router.get('/', verifyToken, getClientOrders);
+
+/**
+ * Route pour créer une nouvelle commande.
+ * @route POST /
+ * @access private
  */
 router.post('/', verifyToken, handleCreateOrder);
+
+/**
+ * Route pour récupérer une commande spécifique par son ID.
+ * @route GET /:id
+ * @access private
+ */
+router.get('/:id', verifyToken, getOrderById);
 
 module.exports = router;
