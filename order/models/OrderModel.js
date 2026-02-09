@@ -1,6 +1,30 @@
 // Modèle Commandes
 const db = require("../../db");
 
+// Récupérer la liste des commandes d'un utilisateur
+const getOrdersByUserId = async (userId) => {
+    const [rows] = await db.query(
+        "SELECT * FROM commande WHERE id_client = ?",
+        [userId]
+    );
+    return rows;
+};
+
+// Récupérer une commande par son ID
+const getOrderById = async (orderId) => {
+    const [rows] = await db.query(
+        "SELECT * FROM commande WHERE id_commande = ?",
+        [orderId]
+    )}
+
+// Récupérer les articles d'une commande
+const getItemsByOrderId = async (orderId) => {
+    const [rows] = await db.query(
+        "SELECT * FROM contenir WHERE id_commande = ?",
+        [orderId]
+    )}
+
+
 /**
  * Crée une commande dans la base de données avec ses lignes de commande associées.
  * Utilise une transaction pour garantir l'intégrité des données.
@@ -9,7 +33,7 @@ const db = require("../../db");
  * @param {Array<object>} orderData.items - Les articles de la commande.
  * @param {number} orderData.total - Le montant total de la commande.
  * @param {string} orderData.moyen_paiement - Le moyen de paiement utilisé.
- * @param {string} orderData.mode_commande - Le mode de la commande (ex: 'Web').
+ * @param {string} orderData.mode_commande - Le mode de la commande (ex : 'Web').
  * @returns {Promise<object>} - L'ID de la nouvelle commande.
  */
 const createOrder = async (orderData) => {
@@ -60,4 +84,4 @@ const createOrder = async (orderData) => {
     }
 };
 
-module.exports = { createOrder };
+module.exports = { createOrder, getOrdersByUserId, getOrderById, getItemsByOrderId };

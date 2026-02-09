@@ -1,5 +1,4 @@
 // Modèle Articles
-
 const db = require("../../db");
 
 // Récupérer tous les produits
@@ -20,5 +19,29 @@ const getArticleByCategory = async (categorie) => {
     return rows;
 }
 
+// Récupérer les 3 articles les plus vendus
+const getTopSellingArticles = async () => {
+    const [rows] = await db.query(`
+        SELECT
+            p.id_article,
+            p.nom_produit,
+            p.prix_ttc,
+            p.image_url,
+            SUM(c.quantite_commandee) AS total_vendu
+        FROM
+            produit p
+                JOIN
+            contenir c ON p.id_article = c.id_article
+        GROUP BY
+            p.id_article,
+            p.nom_produit,
+            p.prix_ttc,
+            p.image_url
+        ORDER BY
+            total_vendu DESC
+            LIMIT 3;
+    `);
+    return rows;
+};
 
-module.exports = { getAllArticles, getArticleById, getArticleByCategory };
+module.exports = { getAllArticles, getArticleById, getArticleByCategory, getTopSellingArticles };
