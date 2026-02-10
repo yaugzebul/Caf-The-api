@@ -1,6 +1,17 @@
 // Modèle Clients
+
 const db = require("../../db");
 const bcrypt = require("bcryptjs");
+
+// AJOUT - nouvelle fonction
+// Rechercher un client par son ID
+const findClientById = async (id) => {
+    const [rows] = await db.query(
+        "SELECT * FROM client WHERE id_client = ?",
+        [id]
+    );
+    return rows;
+};
 
 // Rechercher un client par email
 const findClientByEmail = async (email) => {
@@ -62,7 +73,7 @@ const hashPassword = async (password) => {
 const comparePassword= async (password, hash) => {
     return await bcrypt.compare(password, hash)
 }
-module.exports = {findClientByEmail,createClient, hashPassword, comparePassword};
+module.exports = {findClientByEmail,createClient, hashPassword, comparePassword, findClientById};
 
 // {
 //    "nom":"Testaert",

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 // connexion à la bdd
@@ -33,8 +34,12 @@ app.use(express.static( "public"));
 app.use(cors( {
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
 }),
     );
+
+// Parser les cookies dans req
+app.use(cookieParser());
 
 // ROUTES
 

@@ -5,25 +5,25 @@ const jwt = require('jsonwebtoken');
 
 // Vérification du token
 const verifyToken = (req, res, next) => {
-    // Récupérer le header d'authentification
-    const authHeader = req.headers['authorization'];
+    // Cherche le token dans le cookie HttpOnly
+    let token = req.cookies && req.cookies.token;
 
-    if(!authHeader) {
-        return res.status(403).json({
-            message: "Token manquant",
-        });
+    // header Authorization
+    if (!token) {
+        const authHeader = req.headers["authorization"];
+
+        if (!authHeader) {
+            return res.status(403).json({ message: "Token manquant" });
+        }
+
+        const parts = authHeader.split(" ");
+
+        if (parts.length !== 2 || parts[0] !== "Bearer") {
+            return res.status(403).json({ message: "Format de token invalide" });
+        }
+
+        token = parts[1];
     }
-
-    // Le format attendu, c'est "Bearer <token>"
-    const parts = authHeader.split(" ");
-    if (parts.length !== 2 || parts[0] !== "Bearer"){
-        return res.status(403).json({
-            message: "Format de token invalide",
-        })
-    }
-
-    const token = parts[1]; // <token>
-
     // Vérifier le token
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {

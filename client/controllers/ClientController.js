@@ -1,10 +1,12 @@
-// Controleur Clients
+// Controller Clients
 
 const {
     createClient,
     findClientByEmail,
     hashPassword,
-    comparePassword} = require("../models/ClientModel");
+    comparePassword,
+    findClientById
+} = require("../models/ClientModel");
 const jwt = require("jsonwebtoken");
 
 // Inscription
@@ -71,6 +73,7 @@ const login = async (req, res) => {
         }
 
         // Générer le token JWT
+        const expire = parseInt(process.env.JWT_EXPIRES_IN, 10) || 3600;
         const token = jwt.sign(
             {
                 id: client.id_client,
@@ -79,6 +82,13 @@ const login = async (req, res) => {
             process.env.JWT_SECRET,
            //  {expiresIn: process.env.EXPIRES_IN || "1h"},
         )
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: expire * 1000,
+        });
+
         res.json({
             message: "Connexion réussie",
             token,
@@ -96,4 +106,41 @@ const login = async (req, res) => {
         })
     }
 };
-module.exports = {register, login};
+
+const logout = (req, res) => {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: false, // Mettre sur true en HTTPS
+        sameSite: "lax"
+    });
+    res.json({ message: "Déconnexion réussie" });
+};
+// Automatiquement, le navigateur envoie le cookie
+// Le Middleware vérifie le JWT
+// Si le token est valide, on retourne les infos du client.
+const getMe = async (req, res) => {
+    try {
+        // req.client.id vient du JWT decode par le middleware verifyToken
+        const clients = await findClientById(req.client.id);
+
+        if (clients.length === 0) {
+            return res.status(404).json({ message: "Client introuvable" });
+        }
+
+        const client = clients[0];
+
+        res.json({
+            client: {
+                id: client.id_client,
+                nom: client.nom_client,
+                prenom: client.prenom_client,
+                email: client.email_client
+            }
+        });
+    } catch (error) {
+        console.error("Erreur /me:", error.message);
+        res.status(500).json({ message: "Erreur lors de la vérification de session" });
+    }
+};
+
+module.exports = {register, login, logout, getMe};
