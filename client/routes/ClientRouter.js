@@ -2,7 +2,7 @@
 // Chemin : /api/clients
 
 const express = require("express");
-const { register, getMe, logout} = require("../controllers/ClientController");
+const { register, getMe, logout, updateProfile } = require("../controllers/ClientController");
 const router = express.Router();
 const { login } = require("../controllers/ClientController");
 const {verifyToken} = require("../../mddleware/authMiddleware");
@@ -11,6 +11,11 @@ const {verifyToken} = require("../../mddleware/authMiddleware");
 // Route protégée
 // GET /api/clients/me
 router.get("/me", verifyToken, getMe)
+
+// Mise à jour du profil client
+// Route protégée
+// PUT /api/clients/me
+router.put("/me", verifyToken, updateProfile);
 
 // Déconnexion
 // Route protégée

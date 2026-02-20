@@ -5,7 +5,8 @@ const {
     findClientByEmail,
     hashPassword,
     comparePassword,
-    findClientById
+    findClientById,
+    updateClient
 } = require("../models/ClientModel");
 const jwt = require("jsonwebtoken");
 
@@ -134,7 +135,15 @@ const getMe = async (req, res) => {
                 id: client.id_client,
                 nom: client.nom_client,
                 prenom: client.prenom_client,
-                email: client.email_client
+                email: client.email_client,
+                // Ajout des champs pour la page "Mon compte"
+                telephone: client.tel_client,
+                adresse_facturation: client.adresse_facturation,
+                cp_facturation: client.cp_facturation,
+                ville_facturation: client.ville_facturation,
+                adresse_livraison: client.adresse_livraison,
+                cp_livraison: client.cp_livraison,
+                ville_livraison: client.ville_livraison
             }
         });
     } catch (error) {
@@ -143,4 +152,67 @@ const getMe = async (req, res) => {
     }
 };
 
-module.exports = {register, login, logout, getMe};
+// Mettre à jour le profil
+const updateProfile = async (req, res) => {
+    try {
+        const clientId = req.client.id;
+        
+        // 1. Récupérer les données actuelles du client
+        const clients = await findClientById(clientId);
+        if (clients.length === 0) {
+            return res.status(404).json({ message: "Client introuvable" });
+        }
+        const currentClient = clients[0];
+
+        // 2. Fusionner les données actuelles avec les nouvelles données
+        // Si une donnée n'est pas fournie dans req.body, on garde l'ancienne
+        const {
+            nom = currentClient.nom_client,
+            prenom = currentClient.prenom_client,
+            adresse_facturation = currentClient.adresse_facturation,
+            cp_facturation = currentClient.cp_facturation,
+            ville_facturation = currentClient.ville_facturation,
+            adresse_livraison = currentClient.adresse_livraison,
+            cp_livraison = currentClient.cp_livraison,
+            ville_livraison = currentClient.ville_livraison,
+            telephone = currentClient.tel_client
+        } = req.body;
+
+        // 3. Appeler le modèle pour mettre à jour
+        await updateClient(clientId, {
+            nom,
+            prenom,
+            adresse_facturation,
+            cp_facturation,
+            ville_facturation,
+            adresse_livraison,
+            cp_livraison,
+            ville_livraison,
+            telephone
+        });
+
+        // 4. Renvoyer les nouvelles infos
+        res.json({
+            message: "Profil mis à jour avec succès",
+            client: {
+                id: clientId,
+                nom,
+                prenom,
+                telephone,
+                adresse_facturation,
+                cp_facturation,
+                ville_facturation,
+                adresse_livraison,
+                cp_livraison,
+                ville_livraison
+            }
+        });
+
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour du profil :", error.message);
+        res.status(500).json({ message: "Erreur lors de la mise à jour du profil" });
+    }
+};
+
+
+module.exports = {register, login, logout, getMe, updateProfile};

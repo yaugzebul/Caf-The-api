@@ -3,7 +3,6 @@
 const db = require("../../db");
 const bcrypt = require("bcryptjs");
 
-// AJOUT - nouvelle fonction
 // Rechercher un client par son ID
 const findClientById = async (id) => {
     const [rows] = await db.query(
@@ -61,6 +60,48 @@ const createClient = async (clientData) => {
     return result;
 }
 
+// Mettre à jour les informations d'un client
+const updateClient = async (id, clientData) => {
+    const {
+        nom,
+        prenom,
+        adresse_facturation,
+        cp_facturation,
+        ville_facturation,
+        adresse_livraison,
+        cp_livraison,
+        ville_livraison,
+        telephone
+    } = clientData;
+
+    const [result] = await db.query(
+        `UPDATE client SET 
+            nom_client = ?, 
+            prenom_client = ?, 
+            adresse_facturation = ?, 
+            cp_facturation = ?, 
+            ville_facturation = ?, 
+            adresse_livraison = ?, 
+            cp_livraison = ?, 
+            ville_livraison = ?, 
+            tel_client = ?
+        WHERE id_client = ?`,
+        [
+            nom,
+            prenom,
+            adresse_facturation || null,
+            cp_facturation || null,
+            ville_facturation || null,
+            adresse_livraison || null,
+            cp_livraison || null,
+            ville_livraison || null,
+            telephone || null,
+            id
+        ]
+    );
+    return result;
+};
+
 // Hacher le mot de passe
 const hashPassword = async (password) => {
     const rounds = parseInt( process.env.BCRYPT_ROUNDS)  || 10
@@ -73,11 +114,4 @@ const hashPassword = async (password) => {
 const comparePassword= async (password, hash) => {
     return await bcrypt.compare(password, hash)
 }
-module.exports = {findClientByEmail,createClient, hashPassword, comparePassword, findClientById};
-
-// {
-//    "nom":"Testaert",
-//    "prenom":"Romain",
-//    "email":"contact.rtestaert.fr",
-//    "mot_de_passe":"romain1234"
-// }
+module.exports = {findClientByEmail, createClient, hashPassword, comparePassword, findClientById, updateClient};
