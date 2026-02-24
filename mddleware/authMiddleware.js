@@ -5,25 +5,24 @@ const jwt = require('jsonwebtoken');
 
 // Vérification du token
 const verifyToken = (req, res, next) => {
-    // Cherche le token dans le cookie HttpOnly
-    let token = req.cookies && req.cookies.token;
+    // 1. Chercher le token dans les cookies (priorité aux cookies pour le front)
+    let token = req.cookies.token;
 
-    // header Authorization
+    // 2. Si pas de cookie, chercher dans le header Authorization (pour Postman/Mobile)
     if (!token) {
-        const authHeader = req.headers["authorization"];
-
-        if (!authHeader) {
-            return res.status(403).json({ message: "Token manquant" });
+        const authHeader = req.headers['authorization'];
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            token = authHeader.split(" ")[1];
         }
-
-        const parts = authHeader.split(" ");
-
-        if (parts.length !== 2 || parts[0] !== "Bearer") {
-            return res.status(403).json({ message: "Format de token invalide" });
-        }
-
-        token = parts[1];
     }
+
+    // Si aucun token n'est trouvé nulle part
+    if (!token) {
+        return res.status(403).json({
+            message: "Token manquant ou invalide",
+        });
+    }
+
     // Vérifier le token
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {

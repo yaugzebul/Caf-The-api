@@ -102,6 +102,15 @@ const updateClient = async (id, clientData) => {
     return result;
 };
 
+// Mettre à jour uniquement le mot de passe
+const updatePassword = async (id, hashedPassword) => {
+    const [result] = await db.query(
+        "UPDATE client SET mdp_client = ? WHERE id_client = ?",
+        [hashedPassword, id]
+    );
+    return result;
+};
+
 // Hacher le mot de passe
 const hashPassword = async (password) => {
     const rounds = parseInt( process.env.BCRYPT_ROUNDS)  || 10
@@ -114,4 +123,4 @@ const hashPassword = async (password) => {
 const comparePassword= async (password, hash) => {
     return await bcrypt.compare(password, hash)
 }
-module.exports = {findClientByEmail, createClient, hashPassword, comparePassword, findClientById, updateClient};
+module.exports = {findClientByEmail, createClient, hashPassword, comparePassword, findClientById, updateClient, updatePassword};

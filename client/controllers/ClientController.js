@@ -6,7 +6,8 @@ const {
     hashPassword,
     comparePassword,
     findClientById,
-    updateClient
+    updateClient,
+    updatePassword
 } = require("../models/ClientModel");
 const jwt = require("jsonwebtoken");
 
@@ -214,5 +215,48 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// Changer le mot de passe
+const changePassword = async (req, res) => {
+    try {
+        const clientId = req.client.id;
+        const { ancien_mot_de_passe, nouveau_mot_de_passe, confirmation_mot_de_passe } = req.body;
 
-module.exports = {register, login, logout, getMe, updateProfile};
+        // 1. Vérifier que tous les champs sont présents
+        if (!ancien_mot_de_passe || !nouveau_mot_de_passe || !confirmation_mot_de_passe) {
+            return res.status(400).json({ message: "Tous les champs sont obligatoires." });
+        }
+
+        // 2. Vérifier que le nouveau mot de passe et la confirmation correspondent
+        if (nouveau_mot_de_passe !== confirmation_mot_de_passe) {
+            return res.status(400).json({ message: "Les mots de passe ne correspondent pas." });
+        }
+
+        // 3. Récupérer le client pour avoir son mot de passe actuel
+        const clients = await findClientById(clientId);
+        if (clients.length === 0) {
+            return res.status(404).json({ message: "Client introuvable." });
+        }
+        const client = clients[0];
+
+        // 4. Vérifier l'ancien mot de passe
+        const isMatch = await comparePassword(ancien_mot_de_passe, client.mdp_client);
+        if (!isMatch) {
+            return res.status(401).json({ message: "L'ancien mot de passe est incorrect." });
+        }
+
+        // 5. Hacher le nouveau mot de passe
+        const hashedPassword = await hashPassword(nouveau_mot_de_passe);
+
+        // 6. Mettre à jour le mot de passe en base
+        await updatePassword(clientId, hashedPassword);
+
+        res.json({ message: "Mot de passe modifié avec succès." });
+
+    } catch (error) {
+        console.error("Erreur lors du changement de mot de passe :", error.message);
+        res.status(500).json({ message: "Erreur lors du changement de mot de passe." });
+    }
+};
+
+
+module.exports = {register, login, logout, getMe, updateProfile, changePassword};

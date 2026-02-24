@@ -27,6 +27,11 @@ const getTopSellingArticles = async () => {
             p.nom_produit,
             p.prix_ttc,
             p.image_url,
+            p.type_vente,       -- INDISPENSABLE pour /kg vs /unité
+            p.choix_poids,      -- INDISPENSABLE pour le sélecteur
+            p.description,      -- Pour l'affichage
+            p.promotion,        -- Pour le badge promo
+            p.pourcentage_promo,-- Pour le calcul du prix promo
             SUM(c.quantite_commandee) AS total_vendu
         FROM
             produit p
@@ -36,7 +41,12 @@ const getTopSellingArticles = async () => {
             p.id_article,
             p.nom_produit,
             p.prix_ttc,
-            p.image_url
+            p.image_url,
+            p.type_vente,
+            p.choix_poids,
+            p.description,
+            p.promotion,
+            p.pourcentage_promo
         ORDER BY
             total_vendu DESC
             LIMIT 3;
