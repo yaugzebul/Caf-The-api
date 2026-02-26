@@ -33,6 +33,7 @@ app.use(express.static( "public"));
 
 app.use(cors( {
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
+   /* origin: process.env.FRONTEND_URL_BUILD || "http://localhost:4173",*/
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 }),
