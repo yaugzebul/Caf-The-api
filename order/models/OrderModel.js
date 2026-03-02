@@ -68,7 +68,12 @@ const findOrderById = async (orderId, clientId) => {
 
     const [items] = await db.query(
         `SELECT 
-            p.id_article, p.nom_produit, p.prix_ttc, p.image_url, c.quantite_commandee
+            p.id_article, 
+            p.nom_produit, 
+            p.prix_ttc, 
+            p.image_url, 
+            p.type_vente, -- Ajout de type_vente ici
+            c.quantite_commandee
          FROM produit p
          INNER JOIN contenir c ON p.id_article = c.id_article
          WHERE c.id_commande = ?`,
