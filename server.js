@@ -32,7 +32,7 @@ app.use(express.static( "public"));
 // Obligatoire sinon le navigateur bloque les requêtes
 
 app.use(cors( {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "https://cafthe.rtestaert.fr/",
 /*
     origin: process.env.FRONTEND_URL_BUILD || "http://localhost:4173",
 */
